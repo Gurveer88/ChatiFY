@@ -3,15 +3,16 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.route.js';
 import messageRoutes from './routes/message.route.js';
 import path from "path";
-
+import { connectDb } from './lib/db.js';
 dotenv.config();
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-const __dirname = path.resolve();
+app.use(express.json()); // Necessary for getting the info with req.body
 
+const __dirname = path.resolve();
 
 app.use('/api/auth', authRoutes);
 
@@ -26,7 +27,15 @@ if(process.env.NODE_ENV === 'production'){
         res.send(path.join(__dirname, "../frontend","dist","index.html"));
     });
 }
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+// SO we will be connecting to the database before our server starts to listen. Cause if the database is not connected then what's the point of starting the server.
+connectDb()
+.then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+})
+.catch((error) => {
+    console.log(`There is an error connecting to the MongoDB ${error}`);
+    process.exit(1);
 });
+    
