@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../lib/utils.js";
 export const signup = async (req, res) => {
+    
   const { fullName, email, password } = req.body;
   const name =
     typeof fullName === "string" ? fullName.trim().toLowerCase() : "";
