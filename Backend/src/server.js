@@ -27,8 +27,15 @@ if(process.env.NODE_ENV === 'production'){
         res.send(path.join(__dirname, "../frontend","dist","index.html"));
     });
 }
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    connectDb();
+// SO we will be connecting to the database before our server starts to listen. Cause if the database is not connected then what's the point of starting the server.
+connectDb()
+.then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+})
+.catch((error) => {
+    console.log(`There is an error connecting to the MongoDB ${error}`);
+    process.exit(1);
 });
+    
