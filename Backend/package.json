@@ -6,7 +6,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.22.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.10.1"
+    "mongoose": "^8.10.1",
+    "resend": "^6.0.2"
   },
   "name": "backend",
   "version": "1.0.0",
