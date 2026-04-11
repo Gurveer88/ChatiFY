@@ -10,7 +10,7 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json()); // Necessary for getting the info with req.body
+app.use(express.json());
 
 const __dirname = path.resolve();
 
