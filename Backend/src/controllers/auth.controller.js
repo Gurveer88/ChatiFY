@@ -54,11 +54,11 @@ export const signup = async (req, res) => {
         email: savedUser.email,
         profilepic: savedUser.profilepic,
       });
-      //Send a Welcome email
+      //Send a Welcome email but not using await cause we don't want the signup to wait just because of this email.
       try {
-        await sendWelcomeEmail(savedUser.email, savedUser.fullName, process.env.CLIENT_URL)
+        sendWelcomeEmail(savedUser.email, savedUser.fullName, process.env.CLIENT_URL)
       } catch (error) {
-        console.error("Error sending the welcome email: ", error);
+        console.error("User signed up but error sending welcome email: ", error.message);
       }
 
     } else {
@@ -75,9 +75,30 @@ export const signup = async (req, res) => {
       .json({ message: "Internal server error from auth.controller.js" });
   }
 };
-export const login = (req, res) => {
-  res.send("login endpoint");
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({email});
+    if(!email || !password){
+      return res.status(400).json("All fields are required for login");
+    }
+    if(!user) return res.status(400).json({message: "Invalid credentials"});
+    const isCorrectPassword = await bcrypt.compare(password, user.password);
+    if(!isCorrectPassword) return res.status(400).json("Invalid credentials");
+    generateToken(user._id, res);
+    res.status(201).json({
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        profilepic: user.profilepic,
+    });
+  } catch (error) {
+    console.log("Error in login controller");
+    res.status(500).json({message: "Internal server error"});
+  }
+
 };
 export const logout = (req, res) => {
-  res.send("logout endpoint");
+  res.cookie("jwt", "", {maxAge:0});
+  res.status(200).json({message: "Logout successfull"});
 };
