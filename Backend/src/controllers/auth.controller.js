@@ -1,6 +1,8 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../lib/utils.js";
+import { sendWelcomeEmail } from "../Emails/emailhandler.js";
+import 'dotenv/config';
 export const signup = async (req, res) => {
     
   const { fullName, email, password } = req.body;
@@ -46,16 +48,22 @@ export const signup = async (req, res) => {
       // Persist user first then issue an auth cookie
       const savedUser = await newUser.save();
       generateToken(savedUser._id, res);
-      return res.status(201).json({
+      res.status(201).json({
         _id: savedUser._id,
         fullName: savedUser.fullName,
         email: savedUser.email,
         profilepic: savedUser.profilepic,
       });
+      //Send a Welcome email
+      try {
+        await sendWelcomeEmail(savedUser.email, savedUser.fullName, process.env.CLIENT_URL)
+      } catch (error) {
+        console.error("Error sending the welcome email: ", error);
+      }
+
     } else {
       res.status(400).json({ message: "Invalid User data" });
     }
-
   } catch (error) {
     // Handling race condition: unique email constraint violation
     if (error?.code === 11000) {
