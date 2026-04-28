@@ -4,6 +4,7 @@ import authRoutes from './routes/auth.route.js';
 import messageRoutes from './routes/message.route.js';
 import path from "path";
 import { connectDb } from './lib/db.js';
+import cookieparser from "cookie-parser";
 dotenv.config();
 
 const app = express();
@@ -11,6 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cookieparser());
 
 const __dirname = path.resolve();
 
